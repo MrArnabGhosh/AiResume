@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-
+import {ClerkProvider} from "@clerk/nextjs"
 const inter = Inter({subsets:["latin"]})
-
+import {ThemeProvider} from "next-themes"
 export const metadata: Metadata = {
   title: {
     template: "%s - Resumate",
@@ -19,12 +19,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <ClerkProvider>
+      <html lang="en" suppressContentEditableWarning>
       <body
-        className={inter.className}
-      >
+        className={inter.className}>
+          <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+          >
         {children}
+        </ThemeProvider>
       </body>
     </html>
+    </ClerkProvider>
+    
   );
 }
