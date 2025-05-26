@@ -31,6 +31,7 @@ export default function ResumePreview({
                 zoom:(1/794)*width,
             }}
         >
+            {/* <pre>{JSON.stringify(resumeData,null,2)}</pre> */}
         <PersonalInfoHeader resumeData={resumeData}/>
         <SummarySection resumeData={resumeData}/>
         <WorkExprerienceSection resumeData={resumeData}/>
@@ -46,7 +47,7 @@ interface ResumeSectionProps{
 }
 
 function PersonalInfoHeader({resumeData}:ResumeSectionProps){
-    const {photo,firstName,lastName,jobTitle,city,country,phone,email,colorHex,borderStyle}=resumeData;
+    const {photo,firstName,lastName,JobTitle,city,country,phone,email,colorHex,borderStyle}=resumeData;
 
         const [photoSrc,setPhotoSrc]=useState(photo instanceof File? "":photo)
 
@@ -83,7 +84,7 @@ function PersonalInfoHeader({resumeData}:ResumeSectionProps){
                     style={{
                     color:colorHex
                 }}
-                >{jobTitle}</p>
+                >{JobTitle}</p>
             </div>
             <p className="text-xs text-gray-500">
                 {city}

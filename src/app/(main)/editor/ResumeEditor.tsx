@@ -1,7 +1,4 @@
 "use client"
-
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { steps } from "./steps"
 import Breadcrumbs from "./Breadcrumbs"
@@ -9,18 +6,24 @@ import Footer from "./Footer"
 import { useState } from "react"
 import { ResumeValues } from "@/lib/validation"
 import ResumepreviewSection from "./ResumePreviewSection"
-import { cn } from "@/lib/utils"
+import { cn, mapToResumeValues } from "@/lib/utils"
 import useUnloadWarning from "@/hooks/useUnloadWarning"
 import useAutoSaveResume from "./useAutoSaveResume"
+import { ResumeServerData } from "@/lib/types"
 
+interface ResumeEditorProps{
+    resumeToEdit: ResumeServerData|null;
+}
 
-export default  function ResumeEditor(){
+export default  function ResumeEditor({resumeToEdit}:ResumeEditorProps){
     const searchParams = useSearchParams();
 
-    const[resumeData,setResumeData]=useState<ResumeValues>({})
+    const[resumeData,setResumeData]=useState<ResumeValues>(
+        resumeToEdit ? mapToResumeValues(resumeToEdit): {},
+    )
     const[showSmResumePreview,setShowSmResumePreview]=useState(false);
-    const{isSaving,hasUnSaveChanges}=useAutoSaveResume(resumeData)
-    useUnloadWarning(hasUnSaveChanges);
+    const{isSaving,hasUnsaveChanges}=useAutoSaveResume(resumeData)
+    useUnloadWarning(hasUnsaveChanges);
     const currentStep=searchParams.get("step")||steps[0].key;
 
     function setStep(key:string){

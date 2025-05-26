@@ -4,6 +4,7 @@ import "./globals.css";
 import {ClerkProvider} from "@clerk/nextjs"
 const inter = Inter({subsets:["latin"]})
 import {ThemeProvider} from "next-themes"
+import { Toaster } from "@/components/ui/toaster";
 export const metadata: Metadata = {
   title: {
     template: "%s - Resumate",
@@ -30,6 +31,7 @@ export default function RootLayout({
           disableTransitionOnChange
           >
         {children}
+        <Toaster/>
         </ThemeProvider>
       </body>
     </html>

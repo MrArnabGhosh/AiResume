@@ -22,7 +22,7 @@ export const personalInfoSchema=z.object({
     ),
     firstName:optionalString,
     lastName:optionalString,
-    jobTitle:optionalString,
+    JobTitle:optionalString,
     city:optionalString,
     country:optionalString,
     phone:optionalString,
@@ -81,6 +81,7 @@ export const resumeSchema=z.object({
 
     colorHex:optionalString,
     borderStyle:optionalString,
+    
     
 })
 
