@@ -1,4 +1,4 @@
-
+// src/components/ResumePreview.tsx
 import useDimensions from "@/hooks/useDimensions";
 import { cn } from "@/lib/utils";
 import { ResumeValues } from "@/lib/validation";
@@ -6,18 +6,20 @@ import { ResumeValues } from "@/lib/validation";
 import Image from "next/image";
 import React from "react";
 import { useRef,RefObject, useState, useEffect } from "react";
-import {formatDate} from "date-fns"
+import { format } from "date-fns"; 
 import { Badge } from "./ui/badge";
 import { BorderStyles } from "@/app/(main)/editor/BorderStyleButton";
 
 interface ResumePreviewProps {
     resumeData:ResumeValues;
+    contentRep?:React.Ref<HTMLDivElement>
     className?:string;
     contentRef?:React.Ref<HTMLDivElement>
 }
 
 export default function ResumePreview({
     resumeData,
+    contentRef,
     className,
     }: ResumePreviewProps){
     const containerRef=useRef<HTMLDivElement>(null);
@@ -26,10 +28,12 @@ export default function ResumePreview({
     return <div className={cn("bg-white text-black h-fit w-full aspect-[210/297]",className)}
         ref={containerRef}
     >
-        <div className={cn("space-y-6 p-6",!width && "invisible" )} 
+        <div className={cn("space-y-6 p-6",!width && "invisible" )}
             style={{
                 zoom:(1/794)*width,
             }}
+            ref={contentRef}
+            id="ResumePreviewContent"
         >
             {/* <pre>{JSON.stringify(resumeData,null,2)}</pre> */}
         <PersonalInfoHeader resumeData={resumeData}/>
@@ -37,7 +41,7 @@ export default function ResumePreview({
         <WorkExprerienceSection resumeData={resumeData}/>
         <EducationSection resumeData={resumeData}/>
         <SkillSection resumeData={resumeData}/>
-        
+
         </div>
     </div>
 }
@@ -45,6 +49,28 @@ export default function ResumePreview({
 interface ResumeSectionProps{
     resumeData:ResumeValues
 }
+
+
+function formatDate(dateInput: string | Date | null | undefined, formatStr: string): string {
+    if (!dateInput) {
+        return "";
+    }
+
+    let date: Date;
+    if (dateInput instanceof Date) {
+        date = dateInput;
+    } else {
+        date = new Date(dateInput);
+    }
+
+    if (isNaN(date.getTime())) {
+        console.warn(`Invalid date value provided to formatDate: '${dateInput}'. Returning empty string.`);
+        return "";
+    }
+    return format(date, formatStr);
+}
+
+
 
 function PersonalInfoHeader({resumeData}:ResumeSectionProps){
     const {photo,firstName,lastName,JobTitle,city,country,phone,email,colorHex,borderStyle}=resumeData;
@@ -61,15 +87,15 @@ function PersonalInfoHeader({resumeData}:ResumeSectionProps){
 
     return <div className="flex items-center gap-6">
         {photoSrc && (
-            <Image 
+            <Image
             src={photoSrc}
             width={100}
             height={100}
             alt="Author Photo"
             className="aspect-square object-cover"
-            style={{borderRadius:borderStyle===BorderStyles.SQUARE
+            style={{borderRadius:borderStyle===BorderStyles.SQUARE 
                 ? "0px"
-                :borderStyle===BorderStyles.CIRCLE
+                :borderStyle===BorderStyles.CIRCLE 
                 ?"999px"
                 :"10%"
             }}
@@ -105,20 +131,20 @@ function SummarySection({resumeData}:ResumeSectionProps){
     if(!summary)return null;
 
     return <>
-    <hr className="border-2" 
+    <hr className="border-2"
     style={{
      borderColor:colorHex
     }}
-    />   
+    />
     <div className="space-y-3 break-inside-avoid">
         <p className="text-lg font-semibold">Professional profile</p>
         <div className="whitespace-pre-line text-sm ">{summary}</div>
-    </div> 
+    </div>
     </>
 }
 
 function WorkExprerienceSection({resumeData}:ResumeSectionProps){
-    const {workExperience,colorHex} = resumeData
+    const {workExperience,colorHex} = resumeData 
 
     const workExperienceNotEmpty = workExperience?.filter(
         (exp)=>Object.values(exp).filter(Boolean).length>0,
@@ -143,7 +169,10 @@ function WorkExprerienceSection({resumeData}:ResumeSectionProps){
                         {exp.startDate && (
                             <span>
                                 {formatDate(exp.startDate,"MM/yyyy")} -{" "}
-                                {exp.endDate ? formatDate(exp.endDate,"MM/yyyy"):"Present"}
+                                {exp.endDate === 'present'
+                                    ? "Present"
+                                    : formatDate(exp.endDate, "MM/yyyy") || "Present"
+                                }
                             </span>
                         )}
                     </div>
@@ -167,7 +196,7 @@ function EducationSection({resumeData}:ResumeSectionProps){
     if(!educationNotEmpty?.length)return null;
 
     return <>
-         <hr className="border-2" style={{
+           <hr className="border-2" style={{
                     borderColor:colorHex
                 }}/>
             <div className="space-y-3 ">
@@ -176,7 +205,7 @@ function EducationSection({resumeData}:ResumeSectionProps){
             </p>
             {educationNotEmpty.map((edu,index)=>(
                 <div key={index} className="break-inside-avoid space-y-1">
-                    <div className="flex items-center justify-between text-sm font-semibold" 
+                    <div className="flex items-center justify-between text-sm font-semibold"
                     style={{
                     color:colorHex
                     }}
@@ -184,8 +213,10 @@ function EducationSection({resumeData}:ResumeSectionProps){
                         <span>{edu.degree}</span>
                         {edu.startDate && (
                             <span>
-                                {edu.startDate && 
-                                    `${formatDate(edu.startDate,"MM/yyyy")} ${edu.endDate ? `- ${formatDate(edu.endDate,"MM/yyyy")}` : ""}`
+                                {formatDate(edu.startDate, "MM/yyyy")} -{" "}
+                                {edu.endDate === 'present'
+                                    ? "Present"
+                                    : formatDate(edu.endDate, "MM/yyyy") || "Present"
                                 }
                             </span>
                         )}
@@ -198,30 +229,31 @@ function EducationSection({resumeData}:ResumeSectionProps){
 }
 
 function SkillSection({resumeData}:ResumeSectionProps){
+    // Changed 'borderStyle' to 'boderStyle' here
     const {skills,colorHex,borderStyle}=resumeData
 
     if(!skills?.length) return null;
 
     return <>
-    <hr className="border-2" 
+    <hr className="border-2"
         style={{
         borderColor:colorHex
         }}
     />
     <div className="break-inside-avoid space-y-3">
-        <p className="text-lg font-semibold" 
+        <p className="text-lg font-semibold"
             style={{
             color:colorHex
-             }}
+               }}
         >Skills</p>
         <div className="flex break-inside-avoid flex-wrap gap-2">
             {skills.map((skill,index)=>(
                 <Badge key={index} className="bg-black hover:bg-black text-white rounded-md"
-                 style={{
+                   style={{
                     backgroundColor:colorHex,
-                    borderRadius:borderStyle===BorderStyles.SQUARE
+                    borderRadius:borderStyle===BorderStyles.SQUARE // Changed 'borderRadius' to 'boderRadius' here, assuming this is also a typo in your CSS or logic? If not, change this back to 'borderRadius'
                 ? "0px"
-                :borderStyle===BorderStyles.CIRCLE
+                :borderStyle===BorderStyles.CIRCLE // Changed 'borderStyle' to 'boderStyle'
                 ?"999px"
                 :"8px"
             }}
@@ -232,6 +264,6 @@ function SkillSection({resumeData}:ResumeSectionProps){
             ))}
         </div>
     </div>
-    
+
     </>
 }

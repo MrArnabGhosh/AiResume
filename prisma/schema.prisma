@@ -24,7 +24,7 @@ model Resume{
 
   photourl String?
   colorHex String @default("#000000")
-  boderStyle String @default("squircle")
+  borderStyle String @default("squircle")
   summary String?
   firstName String? 
   lastName String?
@@ -74,4 +74,18 @@ model Education{
   updatedAt DateTime @updatedAt
 
   @@map("educations")
+}
+model UserSubscription {
+  id                      String   @id @default(cuid())
+  userId                  String   @unique
+  stripeCustomerId        String   @unique
+  stripeSubscriptionId    String   @unique
+  stripePriceId           String
+  stripeCurrentPeriodEnd  DateTime
+  stripeCancelAtPeriodEnd Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_subscriptions")
 }
